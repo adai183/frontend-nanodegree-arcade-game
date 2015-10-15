@@ -2,9 +2,9 @@
 var Enemy = function() {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
-    this.x = 0;
+    this.x = 200;
     this.y = 0;
-    this.speed = 256;
+    //this.speed =
 
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
@@ -54,7 +54,11 @@ Player.prototype.handleInput = function(dt) {
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 var allEnemies = [];
-
+var totalEnemies = 5;
+for (var i = 0; i < totalEnemies; i++) {
+    var enemy = new Enemy();
+    allEnemies.push(enemy);
+}
 // Place the player object in a variable called player
 var player = new Player();
 
