@@ -1,3 +1,26 @@
+// Board object to hold constants for the board
+// and any other default values.
+// This could be expanded into a more complex classs / function
+// that would allow for different levels to increase
+// the difficulty of the game and/or level layout details.
+var Board = {
+    BOARD_HEIGHT: 606,
+    BOARD_WIDTH: 505,
+    BLOCK_WIDTH: 101,
+    BLOCK_HEIGHT: 83,
+    Y_OFFSET: 60,
+    ENEMY_MIN_SPEED: 50,
+    ENEMY_MAX_SPEED: 200,
+    ROCK_SPEED: 300,
+    PLAYER_SPRITES: ['images/char-boy.png',
+        'images/char-cat-girl.png',
+        'images/char-horn-girl.png',
+        'images/char-pink-girl.png',
+        'images/char-princess-girl.png']
+};
+
+
+
 // Enemies our player must avoid
 var Enemy = function() {
     // Variables applied to each of our instances go here,
@@ -18,14 +41,25 @@ Enemy.prototype.update = function(dt) {
     // which will ensure the game runs at the same speed for
     // all computers.
 
-    this.x = this.x + dt * this.speed;
-
+    // If this enemy is off the board, return it to the start.
+    // Otherwise move forward based on this enemy's speed.
+    if (this.x > Board.BOARD_WIDTH) {
+        this.returnToStart();
+    } else {
+        this.x = this.x + dt * this.speed;
+    }
 };
 
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
+
+// Return the Enemy to a starting position
+Enemy.prototype.returnToStart = function() {
+    // Set the x position to just off the left of the board.
+    this.x = -Board.BLOCK_WIDTH;
+}
 
 // Now write your own player class
 // This class requires an update(), render() and
