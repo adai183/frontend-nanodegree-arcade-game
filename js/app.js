@@ -27,7 +27,7 @@ var Enemy = function() {
     // we've provided one for you to get started
     this.x = 0;
     this.y = 0;
-    this.speed = 80;
+    this.speed = 300;
 
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
@@ -59,11 +59,14 @@ Enemy.prototype.render = function() {
 Enemy.prototype.returnToStart = function() {
     // Set the x position to just off the left of the board.
     this.x = -Board.BLOCK_WIDTH;
+    // Set the y position to a random row
+    this.setRandomRow();
 };
 
 // Set random Row for this enemy
 Enemy.prototype.setRandomRow = function() {
     this.y = Board.Y_OFFSET + Board.BLOCK_HEIGHT * Math.floor(Math.random() * 3);
+
 };
 
 // Now write your own player class
