@@ -59,7 +59,12 @@ Enemy.prototype.render = function() {
 Enemy.prototype.returnToStart = function() {
     // Set the x position to just off the left of the board.
     this.x = -Board.BLOCK_WIDTH;
-}
+};
+
+// Set random Row for this enemy
+Enemy.prototype.setRandomRow = function() {
+    this.y = Board.Y_OFFSET + Board.BLOCK_HEIGHT * Math.floor(Math.random() * 3);
+};
 
 // Now write your own player class
 // This class requires an update(), render() and
@@ -94,6 +99,7 @@ var allEnemies = [];
 var totalEnemies = 5;
 for (var i = 0; i < totalEnemies; i++) {
     var enemy = new Enemy();
+    enemy.setRandomRow();
     allEnemies.push(enemy);
 }
 // Place the player object in a variable called player
