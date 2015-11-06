@@ -23,15 +23,20 @@ var Board = {
 
 // Enemies our player must avoid
 var Enemy = function() {
-    // Variables applied to each of our instances go here,
-    // we've provided one for you to get started
-    this.x = 0;
-    this.y = 0;
-    this.speed = 300;
-
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
+
+   
+    // Set default avarge speed
+   
+    this.speed = Board.ENEMY_MAX_SPEED - Board.ENEMY_MIN_SPEED;
+
+
+    // Set this enemy in a starting position.
+    this.returnToStart();
+
+    
 };
 
 // Update the enemy's position, required method for game
@@ -69,6 +74,12 @@ Enemy.prototype.setRandomRow = function() {
 
 };
 
+// Set random speed for this enemy
+Enemy.prototype.setRandomSpeed = function (){
+    this.speed = Math.floor(Math.random() * (Board.ENEMY_MAX_SPEED -Board.ENEMY_MIN_SPEED) + Board.ENEMY_MIN_SPEED);
+}
+
+
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
@@ -103,6 +114,7 @@ var totalEnemies = 5;
 for (var i = 0; i < totalEnemies; i++) {
     var enemy = new Enemy();
     enemy.setRandomRow();
+    enemy.setRandomSpeed();
     allEnemies.push(enemy);
 }
 // Place the player object in a variable called player
