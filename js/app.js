@@ -9,8 +9,8 @@ var Board = {
     BLOCK_WIDTH: 101,
     BLOCK_HEIGHT: 83,
     Y_OFFSET: 60,
-    ENEMY_MIN_SPEED: 50,
-    ENEMY_MAX_SPEED: 200,
+    ENEMY_SPEED: 600,
+    ENEMY_NUMBER: 3,
     ROCK_SPEED: 300,
     PLAYER_SPRITES: ['images/char-boy.png',
         'images/char-cat-girl.png',
@@ -30,7 +30,7 @@ var Enemy = function() {
    
     // Set default avarge speed
    
-    this.speed = Board.ENEMY_MAX_SPEED - Board.ENEMY_MIN_SPEED;
+    this.speed = Board.ENEMY_SPEED;
 
 
     // Set this enemy in a starting position.
@@ -62,11 +62,16 @@ Enemy.prototype.render = function() {
 
 // Return the Enemy to a starting position
 Enemy.prototype.returnToStart = function() {
-    // Set the x position to just off the left of the board.
-    this.x = -Board.BLOCK_WIDTH;
+/* Set the x position to off the left of the board. Icrease offboard distance randomly  
+to achieve different enemy formations. Algorythm can be improved to to adjust difficulty of the game.
+Why do enemies overlap???
+ */
+    this.x = -Board.BLOCK_WIDTH - Board.BLOCK_WIDTH * (Math.floor(Math.random() * 6)) ;
     // Set the y position to a random row
     this.setRandomRow();
 };
+
+
 
 // Set random Row for this enemy
 Enemy.prototype.setRandomRow = function() {
@@ -75,10 +80,11 @@ Enemy.prototype.setRandomRow = function() {
 };
 
 // Set random speed for this enemy
+/*
 Enemy.prototype.setRandomSpeed = function (){
     this.speed = Math.floor(Math.random() * (Board.ENEMY_MAX_SPEED -Board.ENEMY_MIN_SPEED) + Board.ENEMY_MIN_SPEED);
 }
-
+*/
 
 // Now write your own player class
 // This class requires an update(), render() and
@@ -110,11 +116,10 @@ Player.prototype.handleInput = function(dt) {
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 var allEnemies = [];
-var totalEnemies = 5;
-for (var i = 0; i < totalEnemies; i++) {
+for (var i = 0; i < Board.ENEMY_NUMBER; i++) {
     var enemy = new Enemy();
     enemy.setRandomRow();
-    enemy.setRandomSpeed();
+    //enemy.setRandomSpeed();
     allEnemies.push(enemy);
 }
 // Place the player object in a variable called player
