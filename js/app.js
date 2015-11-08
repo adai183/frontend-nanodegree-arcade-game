@@ -9,6 +9,7 @@ var Board = {
     BLOCK_WIDTH: 101,
     BLOCK_HEIGHT: 83,
     Y_OFFSET: 60,
+    Y_BOTTOM_MAX: 400,
     ENEMY_SPEED: 600,
     ENEMY_NUMBER: 3,
     ROCK_SPEED: 300,
@@ -95,7 +96,7 @@ var Player = function() {
     this.sprite = 'images/char-boy.png';
 
     //set player initial location
-    this.x = 200;
+    this.x = 202;
     this.y = 400;
 
 };
@@ -106,10 +107,30 @@ Player.prototype.update = function(dt) {
 
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+     console.log(this.x, this.y);
 };
 
-Player.prototype.handleInput = function(dt) {
-
+Player.prototype.handleInput = function(key) {
+    if (key == 'up') {
+        // Allow all 'up' movements, as a win will be
+        // anything in the water at the top of the board
+        this.y = this.y - Board.BLOCK_HEIGHT;
+    } else if (key == 'left') {
+        // Ensure player will still be on the board
+        if (this.x > 0) {
+            this.x = this.x - Board.BLOCK_WIDTH;
+        }
+    } else if (key == 'right') {
+        // Ensure player will still be on the board
+        if (this.x < Board.BOARD_WIDTH - Board.BLOCK_WIDTH) {
+            this.x = this.x + Board.BLOCK_WIDTH;
+        }
+    } else if (key == 'down') {
+        // Ensure player will still be on the board
+        if (this.y < Board.Y_BOTTOM_MAX) {
+            this.y = this.y + Board.BLOCK_HEIGHT;
+        }
+    } 
 };
 
 
@@ -128,9 +149,10 @@ var player = new Player();
 
 
 
+
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
-document.addEventListener('keyup', function(e) {
+/*document.addEventListener('keyup', function(e) {
     var allowedKeys = {
         37: 'left',
         38: 'up',
@@ -140,7 +162,26 @@ document.addEventListener('keyup', function(e) {
 
     player.handleInput(allowedKeys[e.keyCode]);
 });
+*/
 
+// Had to add a named function to allow for call
+// to document.removeEventListener
+var passKeyUpValue = function(e) {
+    var allowedKeys = {
+        37: 'left',
+        38: 'up',
+        39: 'right',
+        40: 'down',
+        67: 'c',
+        32: 'space'
+    };
+
+    player.handleInput(allowedKeys[e.keyCode]);
+}
+
+// This listens for key presses and sends the keys to your
+// Player.handleInput() method.
+document.addEventListener('keyup', passKeyUpValue);
 
 
 
