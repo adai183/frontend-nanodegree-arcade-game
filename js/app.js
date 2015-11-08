@@ -66,7 +66,7 @@ Enemy.prototype.returnToStart = function() {
 to achieve different enemy formations. Algorythm can be improved to to adjust difficulty of the game.
 Why do enemies overlap???
  */
-    this.x = -Board.BLOCK_WIDTH - Board.BLOCK_WIDTH * (Math.floor(Math.random() * 6)) ;
+    this.x = - Board.BLOCK_WIDTH * (Math.floor(Math.random() * 6)) ;
     // Set the y position to a random row
     this.setRandomRow();
 };
