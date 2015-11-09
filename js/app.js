@@ -29,11 +29,6 @@ var Enemy = function() {
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
 
-   
-    
-    
-
-
     // Set this enemy in a starting position.
     this.returnToStart();
 
@@ -48,6 +43,13 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
+ 
+// Avoid collision between enemies
+    this.avoidCollision();
+
+ // Check whether this enemy has collided with player
+    this.checkForCollisionWithPlayer();
+    
 
     // If this enemy is off the board, return it to the start.
     // Otherwise move forward based on this enemy's speed.
@@ -56,11 +58,9 @@ Enemy.prototype.update = function(dt) {
     } else if (!this.wait) { // check wether enemy has to wait
         this.x = this.x + dt * this.speed;
     }
-
-    this.avoidCollision();
 };
 
-console.log(e1);
+
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
@@ -92,6 +92,65 @@ Enemy.prototype.setRandomSpeed = function (){
 };
 
 
+
+Enemy.prototype.avoidCollision = function(){
+    
+    // Permutation helper funtion to list every possible pair in an array. 
+    var enemyPairs = [];
+    for (var i = 0; i < allEnemies.length; i++) {
+        for (var j = i + 1; j < allEnemies.length; j++) {
+                arr = new Array(allEnemies[i], allEnemies[j]);
+                enemyPairs.push(arr);
+        }
+        allEnemies[i].wait = false;
+    }
+    enemyPairs.forEach(function(pair) {
+    // This code must handle the checking-for-collision of each array `pair`
+    // which is guaranteed to hold two unique enemies.
+        var e1 = pair[0];
+        var e2 = pair[1];
+    // Do this to be sure e1 is  the one nemy further back
+        var temp;
+
+        if (e2.x < e1.x) {
+          temp = e1;
+          e1 = e2;
+          e2 = temp;
+        }
+    // Detect collision
+        if (e1.x < e2.x + 95 &&
+            e1.x + 95 > e2.x &&
+            e1.y < e2.y + Board.BLOCK_HEIGHT &&
+            Board.BLOCK_HEIGHT + e1.y > e2.y) {
+            
+            // collision detected!
+            // make e1 wait and e2 accelerate
+            e1.wait = true;
+            e2.speed = e1.speed + 30;
+        }
+    });
+};
+
+
+// Check for collision with player
+Enemy.prototype.checkForCollisionWithPlayer = function() {
+// Check whether this enemy's bounds overlap with the player
+// Use BLOCK_HEIGHT for both player and enemy heights to ensure
+// that collisions only occur if on the same row.
+// Descrease the widths from 101 to 80 to provide more detailed
+// collision detection rather than just being on the same block.
+    if (this.x < player.x + 80 &&
+        this.x + 80 > player.x &&
+        this.y < player.y + Board.BLOCK_HEIGHT &&
+        Board.BLOCK_HEIGHT + this.y > player.y) {
+        // collision detected!
+        // cause players death
+        player.death();
+    }
+};
+
+
+
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
@@ -100,51 +159,27 @@ var Player = function() {
     // load player image
     this.sprite = 'images/char-boy.png';
 
-    //set player initial location
-    this.x = 202;
-    this.y = 400;
+     // Start with 3 lives
+    this.lives = 3;
+    
+
+    // Place player at starting position
+    this.returnToStart();
 
 };
 
 Player.prototype.update = function(dt) {
 
+     // Check if the player has won
+    if (this.hasWonTheGame()) {
+        this.wonGame();
+    }
 };
 
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
      console.log(this.x, this.y);
 };
-
-
-Enemy.prototype.avoidCollision = function(){
-    
-// Permutation helper funtion to list every possible pair in an array. 
-var enemyPairs = [];
-for (var i = 0; i < allEnemies.length; i++) {
-    for (var j = i + 1; j < allEnemies.length; j++) {
-            arr = new Array(allEnemies[i], allEnemies[j]);
-            enemyPairs.push(arr);
-    }
-}
-enemyPairs.forEach(function(pair) {
-// This code must handle the checking-for-collision of each array `pair`
-// which is guaranteed to hold two unique enemies.
-    var e1 = pair[0];
-    var e2 = pair[1];
-    if (e1.x < e2.x + 80 &&
-        e1.x + 80 > e2.x &&
-        e1.y < e2.y + Board.BLOCK_HEIGHT &&
-        Board.BLOCK_HEIGHT + e1.y > e2.y) {
-        
-        // collision detected!
-        // make enemy wait        
-        e1.wait = true;
-    }
-  });
-};
-
-
-
 
 
 Player.prototype.handleInput = function(key) {
@@ -171,6 +206,81 @@ Player.prototype.handleInput = function(key) {
 };
 
 
+// Check whether the player has successfully won the game.
+// Return true if the player is in a state where they have won.
+// Return false if the player is not in a winning state.
+Player.prototype.hasWonTheGame = function() {
+    // Default win is if the player is in the water
+    return (this.y <= 0) ? true : false;
+};
+
+// Action to take when player wins
+Player.prototype.wonGame = function() {
+    // Let user know they won the game
+    scoreboard.message = "---------- You Won!!!! :) ----------";
+    this.gameOver();
+};
+
+// Action to take when player loses
+Player.prototype.lostGame = function() {
+    // Let user know they lost the game
+    scoreboard.message = "---------- Sorry, You Lost :( ----------";
+    this.gameOver();
+};
+
+// Game Over Sequence
+Player.prototype.gameOver = function() {
+    // Return player to start
+    this.returnToStart();
+
+    // Clear all the enemies
+    allEnemies = [];
+
+    // Remove the key input listener to
+    // prevent player from moving after gameover.
+    document.removeEventListener('keyup', passKeyUpValue);
+};
+
+
+
+// Action to take on player's death
+Player.prototype.death = function() {
+    // Take away a life
+    this.lives--;
+
+    scoreboard.message = "Game On --------- Get to the Water! --------- Lives: " + player.lives;
+
+    // Return player to the start
+    this.returnToStart();
+
+    
+    if (this.lives < 1) {
+        this.lostGame();
+    }
+};
+
+// Return player to starting position
+Player.prototype.returnToStart = function() {
+    // x position: left side of player is 2 block widths over.
+    this.x = Board.BLOCK_WIDTH * 2;
+    // y position: top side of player is 4 blocks down + an offset.
+    this.y = Board.BLOCK_HEIGHT * 4 + Board.Y_OFFSET;
+};
+
+
+// Scoreboard class
+// Display lives and messages
+var Scoreboard = function() {
+    this.message = "Game On --------- Get to the Water! --------- Lives: " + player.lives;
+};
+
+// Update the scoreboard
+Scoreboard.prototype.update = function() {
+    scoreboardElement.innerHTML = this.message +
+    "<br>Press 'C' to change character, Press 'Spacebar' to throw a rock" +
+    "<br>Reload the page to start over.";
+};
+
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 var allEnemies = [];
@@ -182,6 +292,9 @@ for (var i = 0; i < Board.ENEMY_NUMBER; i++) {
 }
 // Place the player object in a variable called player
 var player = new Player();
+
+// Create Scoreboard
+var scoreboard = new Scoreboard();
 
 
 

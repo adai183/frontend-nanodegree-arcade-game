@@ -23,7 +23,13 @@ var Engine = (function(global) {
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
+        scoreboardElement = document.createElement("div"),
         lastTime;
+
+    // Add a div to display the scoreboard.
+    scoreboardElement.id = "scoreboard";
+    scoreboardElement.innerHTML = "Test Scoreboard";
+    doc.body.appendChild(scoreboardElement);
 
     canvas.width = 505;
     canvas.height = 606;
@@ -57,7 +63,7 @@ var Engine = (function(global) {
          * function again as soon as the browser is able to draw another frame.
          */
         win.requestAnimationFrame(main);
-    }
+    };
 
     /* This function does some initial setup that should only occur once,
      * particularly setting the lastTime variable that is required for the
@@ -94,7 +100,8 @@ var Engine = (function(global) {
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
-        player.update();
+        player.update(dt);
+        scoreboard.update();
     }
 
     /* This function initially draws the "game level", it will then call
@@ -136,6 +143,8 @@ var Engine = (function(global) {
             }
         }
 
+        // User Selector.png image as the player starting location.
+        ctx.drawImage(Resources.get('images/Selector.png'), 101 * 2, 83 * 4 + 44);
 
         renderEntities();
     }
@@ -172,7 +181,13 @@ var Engine = (function(global) {
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
-        'images/char-boy.png'
+        'images/char-boy.png',
+        'images/char-cat-girl.png',
+        'images/char-horn-girl.png',
+        'images/char-pink-girl.png',
+        'images/char-princess-girl.png',
+        'images/Selector.png',
+        'images/Rock.png'
     ]);
     Resources.onReady(init);
 
@@ -181,4 +196,7 @@ var Engine = (function(global) {
      * from within their app.js files.
      */
     global.ctx = ctx;
+
+    // Provide access to the scoreboard element through the global variable
+    global.scoreboardElement = scoreboardElement;
 })(this);
