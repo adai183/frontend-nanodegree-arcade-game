@@ -10,7 +10,8 @@ var Board = {
     BLOCK_HEIGHT: 83,
     Y_OFFSET: 60,
     Y_BOTTOM_MAX: 400,
-    ENEMY_SPEED: 600,
+    ENEMY_MAX_SPEED: 500,
+    ENEMY_MIN_SPEED: 200,
     ENEMY_NUMBER: 3,
     ROCK_SPEED: 300,
     PLAYER_SPRITES: ['images/char-boy.png',
@@ -29,14 +30,15 @@ var Enemy = function() {
     this.sprite = 'images/enemy-bug.png';
 
    
-    // Set default avarge speed
-   
-    this.speed = Board.ENEMY_SPEED;
+    
+    
 
 
     // Set this enemy in a starting position.
     this.returnToStart();
 
+    // Set wait parameter to false on instantiation
+    this.wait = false;
     
 };
 
@@ -51,11 +53,14 @@ Enemy.prototype.update = function(dt) {
     // Otherwise move forward based on this enemy's speed.
     if (this.x > Board.BOARD_WIDTH) {
         this.returnToStart();
-    } else {
+    } else if (!this.wait) { // check wether enemy has to wait
         this.x = this.x + dt * this.speed;
     }
+
+    this.avoidCollision();
 };
 
+console.log(e1);
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
@@ -81,11 +86,11 @@ Enemy.prototype.setRandomRow = function() {
 };
 
 // Set random speed for this enemy
-/*
+
 Enemy.prototype.setRandomSpeed = function (){
     this.speed = Math.floor(Math.random() * (Board.ENEMY_MAX_SPEED -Board.ENEMY_MIN_SPEED) + Board.ENEMY_MIN_SPEED);
-}
-*/
+};
+
 
 // Now write your own player class
 // This class requires an update(), render() and
@@ -109,6 +114,38 @@ Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
      console.log(this.x, this.y);
 };
+
+
+Enemy.prototype.avoidCollision = function(){
+    
+// Permutation helper funtion to list every possible pair in an array. 
+var enemyPairs = [];
+for (var i = 0; i < allEnemies.length; i++) {
+    for (var j = i + 1; j < allEnemies.length; j++) {
+            arr = new Array(allEnemies[i], allEnemies[j]);
+            enemyPairs.push(arr);
+    }
+}
+enemyPairs.forEach(function(pair) {
+// This code must handle the checking-for-collision of each array `pair`
+// which is guaranteed to hold two unique enemies.
+    var e1 = pair[0];
+    var e2 = pair[1];
+    if (e1.x < e2.x + 80 &&
+        e1.x + 80 > e2.x &&
+        e1.y < e2.y + Board.BLOCK_HEIGHT &&
+        Board.BLOCK_HEIGHT + e1.y > e2.y) {
+        
+        // collision detected!
+        // make enemy wait        
+        e1.wait = true;
+    }
+  });
+};
+
+
+
+
 
 Player.prototype.handleInput = function(key) {
     if (key == 'up') {
@@ -140,7 +177,7 @@ var allEnemies = [];
 for (var i = 0; i < Board.ENEMY_NUMBER; i++) {
     var enemy = new Enemy();
     enemy.setRandomRow();
-    //enemy.setRandomSpeed();
+    enemy.setRandomSpeed();
     allEnemies.push(enemy);
 }
 // Place the player object in a variable called player
@@ -177,7 +214,7 @@ var passKeyUpValue = function(e) {
     };
 
     player.handleInput(allowedKeys[e.keyCode]);
-}
+};
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method.
