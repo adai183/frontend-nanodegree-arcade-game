@@ -1,3 +1,11 @@
 body {
+	font-family: 'Lucida Console', 'Lucida Sans Typewriter', monaco, 'Bitstream Vera'; 
     text-align: center;
+}
+
+#lives {
+	margin-top: 10px;
+	font-size:  32px;
+	font-weight: bold;
+	
 }

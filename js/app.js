@@ -29,6 +29,13 @@ var Enemy = function() {
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
 
+    // Default min and max speeds
+    this.minSpeed = Board.ENEMY_MIN_SPEED;
+    this.maxSpeed = Board.ENEMY_MAX_SPEED;
+    
+    // Calculate default speed of this enemy
+    this.speed = this.maxSpeed - this.minSpeed;
+
     // Set this enemy in a starting position.
     this.returnToStart();
 
@@ -146,6 +153,7 @@ Enemy.prototype.checkForCollisionWithPlayer = function() {
         // collision detected!
         // cause players death
         player.death();
+        
     }
 };
 
@@ -161,10 +169,16 @@ var Player = function() {
 
      // Start with 3 lives
     this.lives = 3;
-    
+
+    // Set game_over parameter to false on instantiation
+    this.game_over = false;
+
+    // Set won_game parameter to false on instantiation
+    this.game_over = false;
 
     // Place player at starting position
     this.returnToStart();
+   
 
 };
 
@@ -178,7 +192,26 @@ Player.prototype.update = function(dt) {
 
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-     console.log(this.x, this.y);
+     //console.log(this.x, this.y);
+    
+    // Show GAME OVER on canvas
+    if (this.game_over === true){
+        
+                ctx.fillStyle = "red";
+                ctx.font = "bold 64px console";
+                ctx.fillText("GAME OVER", 50, 200);
+        
+    }
+
+    // Show YOU WON !!! on canvas
+    if (this.won_game === true){
+        
+                ctx.fillStyle = "green";
+                ctx.font = "bold 64px console";
+                ctx.fillText("YOU WON !!!", 50, 200);
+        
+    }
+    
 };
 
 
@@ -202,6 +235,8 @@ Player.prototype.handleInput = function(key) {
         if (this.y < Board.Y_BOTTOM_MAX) {
             this.y = this.y + Board.BLOCK_HEIGHT;
         }
+    }else if (key == 'enter') {
+            location.reload();
     } 
 };
 
@@ -218,6 +253,7 @@ Player.prototype.hasWonTheGame = function() {
 Player.prototype.wonGame = function() {
     // Let user know they won the game
     scoreboard.message = "---------- You Won!!!! :) ----------";
+    this.won_game = true;
     this.gameOver();
 };
 
@@ -230,6 +266,7 @@ Player.prototype.lostGame = function() {
 
 // Game Over Sequence
 Player.prototype.gameOver = function() {
+   
     // Return player to start
     this.returnToStart();
 
@@ -248,14 +285,13 @@ Player.prototype.death = function() {
     // Take away a life
     this.lives--;
 
-    scoreboard.message = "Game On --------- Get to the Water! --------- Lives: " + player.lives;
-
     // Return player to the start
     this.returnToStart();
 
     
     if (this.lives < 1) {
         this.lostGame();
+        this.game_over = true;
     }
 };
 
@@ -271,14 +307,15 @@ Player.prototype.returnToStart = function() {
 // Scoreboard class
 // Display lives and messages
 var Scoreboard = function() {
-    this.message = "Game On --------- Get to the Water! --------- Lives: " + player.lives;
+    this.message = "Game On --------- Get to the Water!";
 };
 
 // Update the scoreboard
 Scoreboard.prototype.update = function() {
     scoreboardElement.innerHTML = this.message +
-    "<br>Press 'C' to change character, Press 'Spacebar' to throw a rock" +
-    "<br>Reload the page to start over.";
+    "<br>Press 'C' to change character, Press" +
+    "<br>Press enter to start over." +
+     "<br><div id='lives'>" + player.lives + " LIVES</div>";
 };
 
 // Now instantiate your objects.
@@ -323,7 +360,8 @@ var passKeyUpValue = function(e) {
         39: 'right',
         40: 'down',
         67: 'c',
-        32: 'space'
+        32: 'space',
+        13: 'enter'
     };
 
     player.handleInput(allowedKeys[e.keyCode]);
