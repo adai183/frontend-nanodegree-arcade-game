@@ -1,11 +1,27 @@
 body {
 	font-family: 'Lucida Console', 'Lucida Sans Typewriter', monaco, 'Bitstream Vera'; 
     text-align: center;
+    margin-top: 20px;
 }
 
 #lives {
-	margin-top: 10px;
-	font-size:  32px;
+
+	display: inline;
+	position: absolute;
+	font-size:  18px;
 	font-weight: bold;
+	margin: 30px 0px 0px 170px;
 	
+}
+
+#level {
+	display: inline;
+	position: absolute;
+	font-size: 18px;
+	font-weight: bold;
+	margin: 30px 0px 0px -240px;
+}
+
+canvas {
+	margin-top: -30px;
 }

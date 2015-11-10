@@ -1,8 +1,7 @@
 // Board object to hold constants for the board
 // and any other default values.
-// This could be expanded into a more complex classs / function
-// that would allow for different levels to increase
-// the difficulty of the game and/or level layout details.
+// During the game the values ENEMY_MAX_SPEED, ENEMY_MIN_SPEED and LEVEL 
+// are modified to increase difficulty for highr levels.
 var Board = {
     BOARD_HEIGHT: 606,
     BOARD_WIDTH: 505,
@@ -10,10 +9,11 @@ var Board = {
     BLOCK_HEIGHT: 83,
     Y_OFFSET: 60,
     Y_BOTTOM_MAX: 400,
-    ENEMY_MAX_SPEED: 500,
-    ENEMY_MIN_SPEED: 200,
+    ENEMY_MAX_SPEED: 200,
+    ENEMY_MIN_SPEED: 100,
     ENEMY_NUMBER: 3,
-    ROCK_SPEED: 300,
+    LEVEL: 1,
+    LIVES: 3,
     PLAYER_SPRITES: ['images/char-boy.png',
         'images/char-cat-girl.png',
         'images/char-horn-girl.png',
@@ -25,6 +25,7 @@ var Board = {
 
 // Enemies our player must avoid
 var Enemy = function() {
+    
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
@@ -76,10 +77,11 @@ Enemy.prototype.render = function() {
 // Return the Enemy to a starting position
 Enemy.prototype.returnToStart = function() {
 /* Set the x position to off the left of the board. Icrease offboard distance randomly  
-to achieve different enemy formations. Algorythm can be improved to to adjust difficulty of the game.
-Why do enemies overlap???
+to achieve different enemy formations. Algorythm can be improved to adjust difficulty of the game.
  */
+
     this.x = - Board.BLOCK_WIDTH * (Math.floor(Math.random() * 6)) ;
+    
     // Set the y position to a random row
     this.setRandomRow();
 };
@@ -99,7 +101,7 @@ Enemy.prototype.setRandomSpeed = function (){
 };
 
 
-
+// Avoid Collision between enemies by using the wait prameter
 Enemy.prototype.avoidCollision = function(){
     
     // Permutation helper funtion to list every possible pair in an array. 
@@ -111,12 +113,14 @@ Enemy.prototype.avoidCollision = function(){
         }
         allEnemies[i].wait = false;
     }
+    
     enemyPairs.forEach(function(pair) {
     // This code must handle the checking-for-collision of each array `pair`
     // which is guaranteed to hold two unique enemies.
         var e1 = pair[0];
         var e2 = pair[1];
-    // Do this to be sure e1 is  the one nemy further back
+    
+    // Do this to be sure e1 is the one enemy further back
         var temp;
 
         if (e2.x < e1.x) {
@@ -124,6 +128,7 @@ Enemy.prototype.avoidCollision = function(){
           e1 = e2;
           e2 = temp;
         }
+    
     // Detect collision
         if (e1.x < e2.x + 95 &&
             e1.x + 95 > e2.x &&
@@ -146,8 +151,8 @@ Enemy.prototype.checkForCollisionWithPlayer = function() {
 // that collisions only occur if on the same row.
 // Descrease the widths from 101 to 80 to provide more detailed
 // collision detection rather than just being on the same block.
-    if (this.x < player.x + 80 &&
-        this.x + 80 > player.x &&
+    if (this.x < player.x + 60 &&
+        this.x + 60 > player.x &&
         this.y < player.y + Board.BLOCK_HEIGHT &&
         Board.BLOCK_HEIGHT + this.y > player.y) {
         // collision detected!
@@ -167,6 +172,9 @@ var Player = function() {
     // load player image
     this.sprite = 'images/char-boy.png';
 
+    // Select a random sprite to start
+    this.changeToRandomCharacter();
+
      // Start with 3 lives
     this.lives = 3;
 
@@ -174,7 +182,10 @@ var Player = function() {
     this.game_over = false;
 
     // Set won_game parameter to false on instantiation
-    this.game_over = false;
+    this.won_game = false;
+
+    // Set got_hit parameter to false on instantiation
+    this.got_hit = false;
 
     // Place player at starting position
     this.returnToStart();
@@ -191,6 +202,24 @@ Player.prototype.update = function(dt) {
 };
 
 Player.prototype.render = function() {
+    var showWon = function (){
+                ctx.fillStyle = "green";
+                ctx.font = "bold 64px console";
+                ctx.fillText("YOU WIN !!! ", 80, 200);
+                ctx.font = "bold 46px console";
+                ctx.fillText("LEVEL " + Board.LEVEL , 150, 270);
+    };
+
+
+     var showOuch = function (){
+                ctx.fillStyle = "red";
+                ctx.font = "bold 64px console";
+                ctx.fillText("OUCH !!!",  120, 200);
+                ctx.font = "bold 46px console";
+                ctx.fillText( Board.LIVES + "  LIVES", 150, 270);
+    };
+
+
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
      //console.log(this.x, this.y);
     
@@ -199,18 +228,20 @@ Player.prototype.render = function() {
         
                 ctx.fillStyle = "red";
                 ctx.font = "bold 64px console";
-                ctx.fillText("GAME OVER", 50, 200);
+                ctx.fillText("GAME OVER", 50, 275);
         
     }
 
-    // Show YOU WON !!! on canvas
+    // Show YOU WON !!! on canvas  
     if (this.won_game === true){
-        
-                ctx.fillStyle = "green";
-                ctx.font = "bold 64px console";
-                ctx.fillText("YOU WON !!!", 50, 200);
-        
+        showWon();
     }
+
+    // Show OUCH !!! on canvas  
+    if (this.got_hit === true && this.game_over === false){
+        showOuch();
+    }    
+    
     
 };
 
@@ -220,6 +251,8 @@ Player.prototype.handleInput = function(key) {
         // Allow all 'up' movements, as a win will be
         // anything in the water at the top of the board
         this.y = this.y - Board.BLOCK_HEIGHT;
+        this.won_game = false;
+        this.got_hit = false;
     } else if (key == 'left') {
         // Ensure player will still be on the board
         if (this.x > 0) {
@@ -237,7 +270,10 @@ Player.prototype.handleInput = function(key) {
         }
     }else if (key == 'enter') {
             location.reload();
-    } 
+    }else if (key == 'c') {
+        // Change the player sprite image
+        this.changeCharacter();
+    }
 };
 
 
@@ -252,9 +288,24 @@ Player.prototype.hasWonTheGame = function() {
 // Action to take when player wins
 Player.prototype.wonGame = function() {
     // Let user know they won the game
-    scoreboard.message = "---------- You Won!!!! :) ----------";
     this.won_game = true;
-    this.gameOver();
+    
+    // Return player to start
+    this.returnToStart();
+    
+    // Create faster enemies for next level
+    Board.ENEMY_MIN_SPEED = Board.ENEMY_MIN_SPEED * 1.3;
+    Board.ENEMY_MAX_SPEED = Board.ENEMY_MAX_SPEED * 1.3;
+    Board.LEVEL++;
+    
+
+    allEnemies = [];
+    for (var i = 0; i < Board.ENEMY_NUMBER; i++) {
+    var enemy = new Enemy();
+    enemy.setRandomRow();
+    enemy.setRandomSpeed();
+    allEnemies.push(enemy);
+    }
 };
 
 // Action to take when player loses
@@ -284,6 +335,10 @@ Player.prototype.gameOver = function() {
 Player.prototype.death = function() {
     // Take away a life
     this.lives--;
+    Board.LIVES--;
+
+    // Set got_hit  to true to show OUCH message 
+    this.got_hit = true;
 
     // Return player to the start
     this.returnToStart();
@@ -304,6 +359,36 @@ Player.prototype.returnToStart = function() {
 };
 
 
+// Change the player's sprite image
+// Parameter: optional index of a specific sprite
+Player.prototype.changeCharacter = function(spriteNumber) {
+    // Use the input spriteNumber if provided
+    if (spriteNumber != null) {
+        this.currentSpriteNumber = spriteNumber;
+    } else {  // otherwise just toggle through the sprites
+        this.currentSpriteNumber = this.currentSpriteNumber + 1;
+    }
+
+    // If the curent value is beyone the range of
+    // available sprites, default to 0.
+    if (this.currentSpriteNumber >= Board.PLAYER_SPRITES.length) {
+        this.currentSpriteNumber = 0;
+    }
+
+    this.sprite = Board.PLAYER_SPRITES[this.currentSpriteNumber];
+};
+
+// Select a random sprite for player
+Player.prototype.changeToRandomCharacter = function() {
+    // Choose a random sprite number based on the total
+    // available sprites
+    var spriteNumber = Math.floor(Math.random() *
+        Board.PLAYER_SPRITES.length);
+
+    this.changeCharacter(spriteNumber);
+};
+
+
 // Scoreboard class
 // Display lives and messages
 var Scoreboard = function() {
@@ -314,8 +399,8 @@ var Scoreboard = function() {
 Scoreboard.prototype.update = function() {
     scoreboardElement.innerHTML = this.message +
     "<br>Press 'C' to change character, Press" +
-    "<br>Press enter to start over." +
-     "<br><div id='lives'>" + player.lives + " LIVES</div>";
+    "<br>Press 'enter' to start over." +
+     "<br><div id='lives'>" + player.lives + " LIVES</div>  " + " <div id='level'>LEVEL " +  Board.LEVEL + "</div>";
 };
 
 // Now instantiate your objects.
@@ -361,6 +446,14 @@ var passKeyUpValue = function(e) {
         40: 'down',
         67: 'c',
         32: 'space',
+    };
+
+    player.handleInput(allowedKeys[e.keyCode]);
+};
+
+// Second Eventlistener to enable player to restart game after game over
+var passKeyUpValueGo = function(e) {
+    var allowedKeys = {
         13: 'enter'
     };
 
@@ -370,6 +463,7 @@ var passKeyUpValue = function(e) {
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method.
 document.addEventListener('keyup', passKeyUpValue);
+document.addEventListener('keyup', passKeyUpValueGo);
 
 
 
