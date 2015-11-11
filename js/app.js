@@ -1,3 +1,5 @@
+
+"use strict";
 // Board object to hold constants for the board
 // and any other default values.
 // During the game the values ENEMY_MAX_SPEED, ENEMY_MIN_SPEED and LEVEL 
@@ -7,6 +9,10 @@ var Board = {
     BOARD_WIDTH: 505,
     BLOCK_WIDTH: 101,
     BLOCK_HEIGHT: 83,
+    PLAYER_START_X: 202,
+    PLAYER_START_Y: 392,
+    GEM_WIDTH : 25,
+    GEM_HEIGHT: 42,
     Y_OFFSET: 60,
     Y_BOTTOM_MAX: 400,
     ENEMY_MAX_SPEED: 200,
@@ -25,7 +31,6 @@ var Board = {
 
 // Enemies our player must avoid
 var Enemy = function() {
-    
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
@@ -103,12 +108,11 @@ Enemy.prototype.setRandomSpeed = function (){
 
 // Avoid Collision between enemies by using the wait prameter
 Enemy.prototype.avoidCollision = function(){
-    
     // Permutation helper funtion to list every possible pair in an array. 
-    var enemyPairs = [];
-    for (var i = 0; i < allEnemies.length; i++) {
+    var enemyPairs = []; 
+    for (var i = 0, len = allEnemies.length; i < len; i++) {
         for (var j = i + 1; j < allEnemies.length; j++) {
-                arr = new Array(allEnemies[i], allEnemies[j]);
+               var arr = new Array(allEnemies[i], allEnemies[j]);
                 enemyPairs.push(arr);
         }
         allEnemies[i].wait = false;
@@ -130,6 +134,10 @@ Enemy.prototype.avoidCollision = function(){
         }
     
     // Detect collision
+    // Check whether this enemy's bounds overlap with other enemy
+    // Use BLOCK_HEIGHT to ensure that collisions only occur if on the same row.
+    // Descrease the widths from 101 to 95 to provide more detailed
+    // collision detection rather than just being on the same block.
         if (e1.x < e2.x + 95 &&
             e1.x + 95 > e2.x &&
             e1.y < e2.y + Board.BLOCK_HEIGHT &&
@@ -149,7 +157,7 @@ Enemy.prototype.checkForCollisionWithPlayer = function() {
 // Check whether this enemy's bounds overlap with the player
 // Use BLOCK_HEIGHT for both player and enemy heights to ensure
 // that collisions only occur if on the same row.
-// Descrease the widths from 101 to 80 to provide more detailed
+// Descrease the widths from 101 to 60 to provide more detailed
 // collision detection rather than just being on the same block.
     if (this.x < player.x + 60 &&
         this.x + 60 > player.x &&
@@ -169,7 +177,7 @@ Enemy.prototype.checkForCollisionWithPlayer = function() {
 // a handleInput() method.
 var Player = function() {
 
-    // load player image
+    // Load player image
     this.sprite = 'images/char-boy.png';
 
     // Select a random sprite to start
@@ -189,8 +197,42 @@ var Player = function() {
 
     // Place player at starting position
     this.returnToStart();
-   
 
+
+    // Gems player can collect
+    // Load gem image
+    this.gemSprite = 'images/Gem Orange.png';
+    // Set gem to a random start position
+    this.randomGemlocation();
+    // Set the amount of gems the player collected to 0 at the beginning
+    this.gemsCollected = 0;
+
+};
+
+// Add random gem positon inside the stone area
+Player.prototype.randomGemlocation = function() {
+     
+     // Position gem randomly in one of the 5 stone columns
+     this.gemX =   Board.BLOCK_WIDTH  * Math.floor(Math.random() * 5) + Math.floor(Board.BLOCK_WIDTH/2);
+     
+     // Position gem randomly in one of the 3 stone rows
+     this.gemY = Board.PLAYER_START_Y - Board.BLOCK_HEIGHT - Board.BLOCK_HEIGHT * Math.floor(Math.random() * 3);
+},
+
+// Check for collision between player and gem
+Player.prototype.collectGem = function() {
+// Check whether this enemy's bounds overlap with the player
+// Use BLOCK_HEIGHT for both player and enemy heights to ensure
+// that collisions only occur if on the same row.
+// Descrease the widths from 101 to 60 to provide more detailed
+// collision detection rather than just being on the same block.
+    if (this.x == this.gemX - Math.floor(Board.BLOCK_WIDTH/2) &&
+        this.y == this.gemY - Board.BLOCK_HEIGHT) {
+        // collision detected!
+        // reposition gem 
+        this.randomGemlocation();
+        this.gemsCollected++;
+    }
 };
 
 Player.prototype.update = function(dt) {
@@ -219,9 +261,9 @@ Player.prototype.render = function() {
                 ctx.fillText( Board.LIVES + "  LIVES", 150, 270);
     };
 
-
+    // render player
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-     //console.log(this.x, this.y);
+    console.log("Player ", this.x, this.y);
     
     // Show GAME OVER on canvas
     if (this.game_over === true){
@@ -241,6 +283,13 @@ Player.prototype.render = function() {
     if (this.got_hit === true && this.game_over === false){
         showOuch();
     }    
+    
+    // check wether gem got collected
+     this.collectGem();
+    // render gems 
+    ctx.drawImage(Resources.get(this.gemSprite), this.gemX, this.gemY);
+    console.log("Gem ",  this.gemX, this.gemY);
+
     
     
 };
@@ -400,7 +449,9 @@ Scoreboard.prototype.update = function() {
     scoreboardElement.innerHTML = this.message +
     "<br>Press 'C' to change character, Press" +
     "<br>Press 'enter' to start over." +
-     "<br><div id='lives'>" + player.lives + " LIVES</div>  " + " <div id='level'>LEVEL " +  Board.LEVEL + "</div>";
+    "<br><div id='lives'>" + player.lives + " LIVES</div>  " + 
+    "<div id='gems'>" + player.gemsCollected + " GEMS</div>  " +
+    "<div id='level'>LEVEL " +  Board.LEVEL + "</div>";
 };
 
 // Now instantiate your objects.
@@ -421,22 +472,9 @@ var scoreboard = new Scoreboard();
 
 
 
-
 // This listens for key presses and sends the keys to your
-// Player.handleInput() method. You don't need to modify this.
-/*document.addEventListener('keyup', function(e) {
-    var allowedKeys = {
-        37: 'left',
-        38: 'up',
-        39: 'right',
-        40: 'down'
-    };
-
-    player.handleInput(allowedKeys[e.keyCode]);
-});
-*/
-
-// Had to add a named function to allow for call
+// Player.handleInput() method.
+// I had to add a named function to allow for call
 // to document.removeEventListener
 var passKeyUpValue = function(e) {
     var allowedKeys = {
