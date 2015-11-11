@@ -1,12 +1,44 @@
 frontend-nanodegree-arcade-game
 ===============================
 
-### How to Start Game
+This is my version of a frogger-like arcade game for project 3 of the [Udacity Front-End Web Developer Nanodegree]
+(https://www.udacity.com/course/nd001).
 
-1. Start a **Static Server** using Python's `SimpleHTTPServer`
+This project provided experience with object-oriented Javascript and the HTML5 Canvas.
 
-### How to Play
 
-1. Use arrow keys to control our hero
-2. Collect the gem as many as possible
-3. …
+
+###Playing the Game:
+
+The goal of the game is to avoid the enemy bugs and successfully
+make it to the water. You can get bonus points collecting gems.
+
+To play the game, clone it from my github account:
+
+```
+git clone https://github.com/adai183/frontend-nanodegree-arcade-game.git
+```
+
+and then open index.html in your browser.
+
+
+Or run the online [online version] 
+(http://adai183.github.io/frontend-nanodegree-arcade-game/)
+
+**Controls:**
+
+* Move up: up arrow key<br>
+* Move down: down arrow key<br>
+* Move left: left arrow key<br>
+* Move right: right arrow key<br>
+* Change character: C key<br>
+
+
+Enjoy!
+
+
+![Arcade Game Screenshot](images/screenshot.png)
+
+
+
+
