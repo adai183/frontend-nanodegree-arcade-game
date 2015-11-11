@@ -62,7 +62,6 @@ Enemy.prototype.update = function(dt) {
 
  // Check whether this enemy has collided with player
     this.checkForCollisionWithPlayer();
-    
 
     // If this enemy is off the board, return it to the start.
     // Otherwise move forward based on this enemy's speed.
@@ -159,8 +158,8 @@ Enemy.prototype.checkForCollisionWithPlayer = function() {
 // that collisions only occur if on the same row.
 // Descrease the widths from 101 to 60 to provide more detailed
 // collision detection rather than just being on the same block.
-    if (this.x < player.x + 60 &&
-        this.x + 60 > player.x &&
+    if (Math.floor(this.x) < player.x + 60 &&
+        Math.floor(this.x) + 60 > player.x &&
         this.y < player.y + Board.BLOCK_HEIGHT &&
         Board.BLOCK_HEIGHT + this.y > player.y) {
         // collision detected!
@@ -169,6 +168,9 @@ Enemy.prototype.checkForCollisionWithPlayer = function() {
         
     }
 };
+
+
+
 
 
 
@@ -221,16 +223,17 @@ Player.prototype.randomGemlocation = function() {
 
 // Check for collision between player and gem
 Player.prototype.collectGem = function() {
-// Check whether this enemy's bounds overlap with the player
-// Use BLOCK_HEIGHT for both player and enemy heights to ensure
-// that collisions only occur if on the same row.
-// Descrease the widths from 101 to 60 to provide more detailed
-// collision detection rather than just being on the same block.
+// Check players position and see whether player should collect gem. 
+// Caution: I resized the Orange gem.png to more or less 50% size!!! 
+// This is why I have to subtract 50% block width for overlapping X coordinates
+//I figured out I had to subtract block height for overlapping  Y coordinates.
+    
     if (this.x == this.gemX - Math.floor(Board.BLOCK_WIDTH/2) &&
         this.y == this.gemY - Board.BLOCK_HEIGHT) {
         // collision detected!
         // reposition gem 
         this.randomGemlocation();
+        // add gem to player score
         this.gemsCollected++;
     }
 };
@@ -263,8 +266,7 @@ Player.prototype.render = function() {
 
     // render player
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-    console.log("Player ", this.x, this.y);
-    
+   
     // Show GAME OVER on canvas
     if (this.game_over === true){
         
@@ -288,9 +290,6 @@ Player.prototype.render = function() {
      this.collectGem();
     // render gems 
     ctx.drawImage(Resources.get(this.gemSprite), this.gemX, this.gemY);
-    console.log("Gem ",  this.gemX, this.gemY);
-
-    
     
 };
 
