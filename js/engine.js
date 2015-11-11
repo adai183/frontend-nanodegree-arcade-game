@@ -146,11 +146,6 @@ var Engine = (function(global) {
         // User Selector.png image as the player starting location.
         ctx.drawImage(Resources.get('images/Selector.png'), 101 * 2, 83 * 4 + 44);
 
-            /* Show game over message
-            ctx.fillStyle = "black";
-            ctx.font = "bold 32px Arial";
-            ctx.fillText("GAME OVER", 200, 200);
-            */
         
 
         renderEntities();
@@ -202,8 +197,7 @@ var Engine = (function(global) {
      * from within their app.js files.
      */
     global.ctx = ctx;
-    //global.canvas = canvas;
-
+    
     // Provide access to the scoreboard element through the global variable
     global.scoreboardElement = scoreboardElement;
 
