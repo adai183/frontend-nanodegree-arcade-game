@@ -51,5 +51,5 @@ Enjoy!
 
 * [Udacity Style Guide](http://udacity.github.io/frontend-nanodegree-styleguide/javascript.html)
 * [Mozilla article on 2D Collision detection](https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection)
-* Stackoverflow
+* [Stackoverflow] (http://stackoverflow.com/)
 
