@@ -40,5 +40,16 @@ Enjoy!
 ![Arcade Game Screenshot](images/screenshot.png)
 
 
+###Resources Used:
 
+**Primary Courses**
+
+* [Object-Oriented Javascript](https://www.udacity.com/course/ud015)
+* [HTML5 Canvas](https://www.udacity.com/course/ud292)
+
+**Additional Resources**
+
+* [Udacity Style Guide](http://udacity.github.io/frontend-nanodegree-styleguide/javascript.html)
+* [Mozilla article on 2D Collision detection](https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection)
+* Stackoverflow
 
