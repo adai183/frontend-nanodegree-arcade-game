@@ -3,7 +3,6 @@ frontend-nanodegree-arcade-game
 
 This is my version of a frogger-like arcade game for project 3 of the [Udacity Front-End Web Developer Nanodegree]
 (https://www.udacity.com/course/nd001).
-
 This project provided experience with object-oriented Javascript and the HTML5 Canvas.
 
 
