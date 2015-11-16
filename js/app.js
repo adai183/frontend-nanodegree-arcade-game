@@ -14,7 +14,6 @@ var Board = {
     GEM_WIDTH : 25,
     GEM_HEIGHT: 42,
     Y_OFFSET: 60,
-    Y_BOTTOM_MAX: 400,
     ENEMY_MAX_SPEED: 200,
     ENEMY_MIN_SPEED: 100,
     ENEMY_NUMBER: 3,
@@ -266,6 +265,7 @@ Player.prototype.render = function() {
 
     // render player
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    console.log ("Player", this.x, this.y)
    
     // Show GAME OVER on canvas
     if (this.game_over === true){
@@ -313,7 +313,7 @@ Player.prototype.handleInput = function(key) {
         }
     } else if (key == 'down') {
         // Ensure player will still be on the board
-        if (this.y < Board.Y_BOTTOM_MAX) {
+        if (this.y < Board.PLAYER_START_Y) {
             this.y = this.y + Board.BLOCK_HEIGHT;
         }
     }else if (key == 'enter') {
