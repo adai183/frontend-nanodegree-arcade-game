@@ -103,9 +103,7 @@ Enemy.prototype.setRandomSpeed = function (){
     this.speed = Math.floor(Math.random() * (Board.ENEMY_MAX_SPEED -Board.ENEMY_MIN_SPEED) + Board.ENEMY_MIN_SPEED);
 };
 
-
-// Avoid Collision between enemies by using the wait prameter
-Enemy.prototype.avoidCollision = function(){
+function getEnemyPairs() {
     // Permutation helper funtion to list every possible pair in an array. 
     var enemyPairs = []; 
     for (var i = 0, len = allEnemies.length; i < len; i++) {
@@ -113,9 +111,21 @@ Enemy.prototype.avoidCollision = function(){
                var arr = new Array(allEnemies[i], allEnemies[j]);
                 enemyPairs.push(arr);
         }
-        allEnemies[i].wait = false;
+        //allEnemies[i].wait = false; // not needed -DN
     }
-    
+    return enemyPairs;
+}
+
+// Set the wait property of every member of allEnemies to bool (true or false)
+function setAllEnemiesWait(bool) {
+    for (var i = 0, len = allEnemies.length; i < len; i++) {
+       allEnemies[i].wait = bool;
+    }
+}
+
+// Avoid Collision between enemies by using the wait prameter
+Enemy.prototype.avoidCollision = function(){
+    setAllEnemiesWait(false);
     enemyPairs.forEach(function(pair) {
     // This code must handle the checking-for-collision of each array `pair`
     // which is guaranteed to hold two unique enemies.
@@ -265,7 +275,7 @@ Player.prototype.render = function() {
 
     // render player
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-    console.log ("Player", this.x, this.y)
+   // console.log ("Player", this.x, this.y)
    
     // Show GAME OVER on canvas
     if (this.game_over === true){
@@ -354,6 +364,7 @@ Player.prototype.wonGame = function() {
     enemy.setRandomSpeed();
     allEnemies.push(enemy);
     }
+    enemyPairs = getEnemyPairs();
 };
 
 // Action to take when player loses
@@ -456,12 +467,17 @@ Scoreboard.prototype.update = function() {
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 var allEnemies = [];
+
 for (var i = 0; i < Board.ENEMY_NUMBER; i++) {
     var enemy = new Enemy();
     enemy.setRandomRow();
     enemy.setRandomSpeed();
     allEnemies.push(enemy);
 }
+
+// Array of all possible enemy interactions for collision detection.
+var enemyPairs = getEnemyPairs();
+
 // Place the player object in a variable called player
 var player = new Player();
 
