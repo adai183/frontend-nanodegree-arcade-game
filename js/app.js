@@ -108,7 +108,7 @@ function getEnemyPairs() {
     var enemyPairs = []; 
     for (var i = 0, len = allEnemies.length; i < len; i++) {
         for (var j = i + 1; j < allEnemies.length; j++) {
-               var arr = new Array(allEnemies[i], allEnemies[j]);
+               var arr = [allEnemies[i], allEnemies[j]];
                 enemyPairs.push(arr);
         }
         //allEnemies[i].wait = false; // not needed -DN
